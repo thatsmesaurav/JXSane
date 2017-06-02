@@ -1,0 +1,11 @@
+/* JavaFX CSS - Leave this comment until you have at least create one rule which uses -fx-Property */
+
+Button{
+   -fx-padding:10;
+}
+
+#topBox, #bottomBox, #leftBox{
+   -fx-border-style:solid;
+   -fx-border-color:black;
+   -fx-border-width:1;
+}
