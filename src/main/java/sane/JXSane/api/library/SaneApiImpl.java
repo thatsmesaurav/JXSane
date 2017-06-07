@@ -1,15 +1,22 @@
 package sane.JXSane.api.library;
 
 import com.sun.jna.Library;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.PointerByReference;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sane.JXSane.api.SaneDevice;
+import sane.JXSane.api.SaneDeviceParam;
 
 public class SaneApiImpl implements SaneApi {
+
+    private final Logger logger = LoggerFactory.getLogger(SaneApiImpl.class);
+    private final int MAX_IMAGE_SIZE = 20971520;
 
     /**
      * Initialize the sane backend -- Must be the first call before calling any
@@ -60,8 +67,8 @@ public class SaneApiImpl implements SaneApi {
             throw new SaneException("Device name is null, Please check");
         }
 
-        SaneLibrary.INSTANCE.sane_open(deviceName, pointer.getPointer());
-        DeviceMapper.instance().addDeviceHandler(deviceName, pointer.getPointer());
+        SaneLibrary.INSTANCE.sane_open(deviceName, pointer);
+        DeviceMapper.instance().addDeviceHandler(deviceName, pointer.getValue());
     }
 
     /**
@@ -79,21 +86,60 @@ public class SaneApiImpl implements SaneApi {
         DeviceMapper.instance().removeDeviceHandler(deviceName);
     }
 
-    public void getSaneParameters(String deviceName) {
+    /**
+     * Scans a document and returns the read bytes.
+     *
+     * @param deviceName
+     * @return
+     */
+    public byte[] scanDocument(String deviceName) {
+
+        byte[] bytes = null;
+
+        try {
+            Pointer ptr = DeviceMapper.instance().getDeviceHandler(deviceName);
+            SaneLibrary.INSTANCE.sane_start(ptr);
+
+            IntByReference len = new IntByReference();
+            Pointer buff = new Memory(MAX_IMAGE_SIZE);
+            SaneLibrary.INSTANCE.sane_read(ptr, buff, MAX_IMAGE_SIZE, len);
+
+            bytes = buff.getByteArray(0, len.getValue());
+        } catch (Exception ex) {
+            throw new SaneException(ex);
+        }
+        return bytes;
+    }
+
+    /**
+     * 
+     * @param deviceName 
+     * @return SaneDeviceParam
+     * 
+     */
+    public SaneDeviceParam getSaneParameters(String deviceName) {
         if (deviceName == null || deviceName.isEmpty()) {
             throw new SaneException("Device name is null. Please check");
         }
+        NativeDeviceParams deviceParams = new NativeDeviceParams();
 
         try {
 
-            NativeDeviceParams params = new NativeDeviceParams();
-            int i = SaneLibrary.INSTANCE.sane_get_parameters(DeviceMapper.instance().getDeviceHandler(deviceName), params);
-            System.out.println("ststus hai " + i);
-            System.out.println("sane.JXSane.api.library.SaneApiImpl.getSaneParameters()");
+            
+            int status = SaneLibrary.INSTANCE.sane_get_parameters(DeviceMapper.instance().getDeviceHandler(deviceName), deviceParams);
+
+            if (status != 0) {
+
+                String errorMsg = SaneLibrary.INSTANCE.sane_strstatus(status);
+                logger.error(errorMsg);
+                throw new SaneException(errorMsg);
+            }
 
         } catch (Exception ex) {
             throw new SaneException(ex);
         }
+        
+        return new SaneDeviceParam(deviceParams.frameFormat, deviceParams.lastFrame, deviceParams.bytesPerLine,deviceParams.pixelsPerLine,deviceParams.lines,deviceParams.depth);
     }
 
     /**
@@ -115,11 +161,18 @@ public class SaneApiImpl implements SaneApi {
 
         public int sane_get_devices(PointerByReference pointerToDeviceList, boolean localOnly);
 
-        public int sane_open(String name, Pointer handle);
+        public int sane_open(String name, PointerByReference handle);
 
         public void sane_close(Pointer handle);
 
-        public int sane_get_parameters(Pointer handle, NativeDeviceParams params);
+        public int sane_get_parameters(Pointer handle, NativeDeviceParams deviceParams);
+
+        public String sane_strstatus(int status);
+
+        public int sane_start(Pointer handle);
+
+        public int sane_read(Pointer handle, Pointer buff,
+                int maxlen, IntByReference len);
 
         public void sane_exit();
     }
