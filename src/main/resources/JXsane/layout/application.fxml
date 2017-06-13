@@ -7,6 +7,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.ListView?>
 
 <BorderPane id="app" stylesheets="@../application.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="sane.JXSane.controller.ApplicationController">
 	<top>
@@ -14,20 +15,19 @@
 			<padding>
 				<Insets bottom="30.0" left="15.0" right="15.0" top="30.0" />
 			</padding>
-			<Button text="Scan" onAction="#handleScanSubmitAction"/>
 			<ComboBox fx:id="availableScanners" layoutX="15.0" layoutY="70.0" prefWidth="90.0" promptText="choose"/>
+                        <Button text="Scan" onAction="#handleScanSubmitAction"/>
 	    </HBox>
 	</top>
 	<left>
-		<VBox id="leftBox" />
+            <VBox id="leftBox">
+                <ListView fx:id="scanHistory"/>
+            </VBox>
 	</left>
+        <center>
+		<ImageView fx:id="previewImage"/>
+	</center>
         <right>
 		<VBox id="rightBox" />
 	</right>
-	<center>
-		<ImageView fx:id="previewImage"/>
-	</center>
-	<bottom>
-		<HBox id="bottomBox" />
-	</bottom>
 </BorderPane>

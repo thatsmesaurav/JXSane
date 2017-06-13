@@ -8,7 +8,7 @@ import sane.JXSane.api.SaneDeviceParam;
 import sane.JXSane.api.library.SaneApi;
 import sane.JXSane.api.library.SaneApiImpl;
 import sane.JXSane.processor.image.ImageProcessor;
-import sane.JXSane.processor.image.ImageProcessorImpl;
+
 
 /**
  * To test this class either you need to create a mock object or connect
@@ -23,7 +23,7 @@ public class SaneAPITest {
     @Before
     public void setup() {
         saneApi = new SaneApiImpl();
-        imagePrssr = new ImageProcessorImpl();
+        
     }
 
     @Test
