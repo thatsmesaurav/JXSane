@@ -7,7 +7,7 @@ import sane.JXSane.api.SaneDevice;
 import sane.JXSane.api.SaneDeviceParam;
 import sane.JXSane.api.library.SaneApi;
 import sane.JXSane.api.library.SaneApiImpl;
-import sane.JXSane.processor.image.ImageProcessor;
+import sane.JXSane.acquisitor.image.ImageAcquisitor;
 
 
 /**
@@ -18,7 +18,7 @@ import sane.JXSane.processor.image.ImageProcessor;
 public class SaneAPITest {
 
     SaneApi saneApi = null;
-    ImageProcessor imagePrssr = null;
+    ImageAcquisitor imagePrssr = null;
 
     @Before
     public void setup() {

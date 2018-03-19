@@ -1,5 +1,6 @@
 package sane.JXSane.controller;
 
+import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.beans.value.ChangeListener;
@@ -15,7 +16,9 @@ import sane.JXSane.api.SaneDeviceParam;
 import sane.JXSane.api.SaneDevicePool;
 import sane.JXSane.api.library.SaneApi;
 import sane.JXSane.api.library.SaneApiImpl;
-import sane.JXSane.processor.image.ImageProcessor;
+import sane.JXSane.acquisitor.image.ImageAcquisitorFactory;
+import sane.JXSane.acquisitor.image.ImageAcquisitor;
+import sane.JXane.processor.image.ImageProcessor;
 
 
 public class ApplicationController implements Initializable {
@@ -30,7 +33,7 @@ public class ApplicationController implements Initializable {
     private ListView scanHistory;
 
     private SaneApi saneApi = null;
-    private ImageProcessor processor = null;
+    private ImageAcquisitor processor = null;
     private String selectedDeviceName = null;
 
     public void initialize(URL fxmlFileLocation, ResourceBundle resources) {
@@ -57,13 +60,14 @@ public class ApplicationController implements Initializable {
         SaneDeviceParam params = saneApi.getSaneParameters(selectedDeviceName);
         byte[] pixelBytes = saneApi.scanDocument(selectedDeviceName);
         saneApi.closeDevice(selectedDeviceName);
-        processor.convertBytesToImage(pixelBytes, params);
+        BufferedImage bufImg = ImageAcquisitorFactory.getImageProcessor(0).convertBytesToImage(pixelBytes, params);
         Image image = new Image("file:///home/saurav/wow.bmp");
         previewImage.setImage(image);
         previewImage.setFitWidth(400);
         previewImage.setPreserveRatio(true);
         previewImage.setSmooth(true);
         previewImage.setCache(true);
+        ImageProcessor processor = new ImageProcessor();
     }
 
     @Override

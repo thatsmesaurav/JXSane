@@ -1,8 +1,8 @@
-package sane.JXSane.processor.image;
+package sane.JXSane.acquisitor.image;
 
 import java.awt.image.BufferedImage;
 
-public class GrayImageProcessor extends AbstractImageProcessor{
+public class GrayImageAcquisitor extends AbstractImageAcquisitor{
 
     @Override
     protected BufferedImage getBufferedImage(int width, int height) {
